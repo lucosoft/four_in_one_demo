@@ -1,0 +1,70 @@
+#######################################
+# Syntax Coloring Map For IRremote
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+decode_results KEYWORD1
+IRrecv KEYWORD1
+IRsend KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+blink13 KEYWORD2
+decode KEYWORD2
+enableIRIn KEYWORD2
+resume KEYWORD2
+enableIROut KEYWORD2
+sendNEC KEYWORD2
+sendSony KEYWORD2
+sendRaw KEYWORD2
+sendRC5 KEYWORD2
+sendRC6 KEYWORD2
+#
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+NEC LITERAL1
+SONY LITERAL1
+RC5 LITERAL1
+RC6 LITERAL1
+UNKNOWN LITERAL1
+REPEAT LITERAL1
+
+
+#######################################
+# Syntax Coloring Map For DateTime
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+Hour	KEYWORD2
+Minute	KEYWORD2
+Second	KEYWORD2
+Day	KEYWORD2
+DayofWeek	KEYWORD2
+Month	KEYWORD2
+Year	KEYWORD2
+localTime	KEYWORD2
+makeTime	KEYWORD2
+sync	KEYWORD2
+now	KEYWORD2
+available	KEYWORD2
+status	KEYWORD2
+#######################################
+# Instances (KEYWORD2)
+#######################################
+DateTime KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
