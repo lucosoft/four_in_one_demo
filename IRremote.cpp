@@ -197,8 +197,8 @@ void IRsend::enableIROut(int khz) {
   // Disable the Timer2 Interrupt (which is used for receiving IR)
   TIMSK2 &= ~_BV(TOIE2); //Timer2 Overflow Interrupt
   
-  pinMode(3, OUTPUT);
-  digitalWrite(3, LOW); // When not sending PWM, we want it low
+  //pinMode(3, OUTPUT);
+  //digitalWrite(3, LOW); // When not sending PWM, we want it low
   
   // COM2A = 00: disconnect OC2A
   // COM2B = 00: disconnect OC2B; to send signal set to 10: OC2B non-inverted
