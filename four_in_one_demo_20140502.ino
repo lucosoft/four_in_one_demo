@@ -51,31 +51,6 @@ void setup()
   pinMode(pinI4,OUTPUT);
   pinMode(enb,OUTPUT);
   
-     MR_marcha(100);
-     ML_marcha(100);
-     ML_avance();
-     MR_avance();
-     delay(2000);
-     MR_parada();
-     ML_parada();
-
-     ML_marcha(100);
-     MR_marcha(100);
-     MR_retroceso();
-     ML_retroceso();
-     delay(2000);
-     MR_parada();
-     ML_parada();
-     
-     MR_marcha(100);
-     ML_marcha(100);
-     ML_avance();
-     MR_avance();
-     //MR_retroceso();
-     delay(2000);
-     MR_parada();
-     ML_parada();
-
   irrecv.enableIRIn();     // å•Ÿå‹•ç´…å¤–ç·šè§£ç¢¼
 
   Serial.begin(9600);
