@@ -3,7 +3,11 @@
 
 //******************************
 #include "IRremote.h"  
-//#include "Servo.h"
+#include <Servo.h>
+
+//#define L298
+//#define IR
+#define SERVO
 
 //***********************DefiniciÃ³n de los pines del motor*************************
 
@@ -40,21 +44,31 @@ IRrecv irrecv(irReceiverPin);  // å®šç¾© IRrecv ç‰©ä»¶ä¾†æŽ¥
                                // IRrecv objeto definido para recibir seÃ±ales infrarrojas 
 decode_results results;       // è§£ç¢¼çµ�æžœå°‡æ”¾åœ¨ decode_results çµ�æ§‹çš„ result è®Šæ•¸è£�
 
+// servo
+Servo myservo;        // 設 myservo
+
 //********************************************************************(SETUP)
 void setup()
 {  
 
+#if defined(L298)
   pinMode(pinI1,OUTPUT);
   pinMode(pinI2,OUTPUT);
   pinMode(ena,OUTPUT);
   pinMode(pinI3,OUTPUT);
   pinMode(pinI4,OUTPUT);
   pinMode(enb,OUTPUT);
-  
+#endif
+
+#if defined(IR)
   irrecv.enableIRIn();     // å•Ÿå‹•ç´…å¤–ç·šè§£ç¢¼
+#endif
 
+#if defined(SERVO)
+  myservo.attach(3);    // 定義伺服馬達輸出第5腳位(PWM)
+#endif
+  
   Serial.begin(9600);
-
      
   Serial.print("INFO LOGGER: "); //INFO LOGGER
   Serial.println("Inicializado");
@@ -65,6 +79,24 @@ void setup()
 //******************************************************************************(LOOP)
 void loop() 
 {
+  
+#if defined(SERVO)
+    myservo.write(5);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(800);
+    myservo.write(20);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(300);
+    myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(600);
+    myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(2000);
+    myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(600);
+    myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+    delay(100);
+#endif
+    
+#if defined(L298) && defined(IR)
+
   if (irrecv.decode(&results)) 
     {
 	  if (results.value == IRfront)//å‰�é€²
@@ -113,6 +145,8 @@ void loop()
 
    irrecv.resume(); 
 }
+#endif
+
 
 }
 
