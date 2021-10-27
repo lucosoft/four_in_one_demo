@@ -8,6 +8,8 @@
 
 - D2 -> irReceiverPin:Receptor de infrarrojos
 
+- D3 -> servo (ver pinout mas abajo)
+
 - D5 -> pinI1: Motor Right I1
 - D6 -> pinI2: Motor Right I2
 
@@ -17,4 +19,7 @@
 - D10 -> enb: Motor Right (EB control de velocidad PWM)
 
 - D11 -> ena: Motor Right (EA control de velocidad PWM)
+
+### Pinout SG 90
+![picture](docs/SG_90_pinout.JPG)
 
