@@ -3,6 +3,7 @@
 ## Caracteristicas:
 - Envia por el puerto serie la lectura del IR
 - Funciones de avance, retroceso y giro con comando IR
+- Comunicacion BT via HC06 por Serial Arduino
 
 ## Pinout:
 

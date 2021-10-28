@@ -1,5 +1,4 @@
-//å››å’Œä¸€ (å¯»çº¿ é�¿éšœ çº¢å¤–é�¥æŽ§ è“�ç‰™é�¥æŽ§)å¤šåŠŸèƒ½ç¨‹åº�
-//Cuatro y uno (infrarrojo remoto Bluetooth remoto caza evasiÃ³n de obstÃ¡culos) Programa multifunciÃ³n
+//Cuatro en uno (infrarrojo remoto Bluetooth remoto caza evasion de obstaculos) Programa multifuncion
 
 //******************************
 #include "IRremote.h"  
@@ -8,8 +7,8 @@
 //#define L298
 //#define IR
 #define SERVO
-
-//***********************DefiniciÃ³n de los pines del motor*************************
+#define HC06
+//***********************Definicion de los pines del motor*************************
 
 //MR
 int pinI1=5;//定义I1接口
@@ -46,6 +45,10 @@ decode_results results;       // è§£ç¢¼çµ�æžœå°‡æ”¾åœ¨ d
 
 // servo
 Servo myservo;        // 設 myservo
+int myservoStart = 0; // flag for start moving
+
+// hc06
+int incomingByte = 0; // for incoming serial data
 
 //********************************************************************(SETUP)
 void setup()
@@ -67,32 +70,33 @@ void setup()
 #if defined(SERVO)
   myservo.attach(3);    // 定義伺服馬達輸出第5腳位(PWM)
 #endif
-  
-  Serial.begin(9600);
-     
-  Serial.print("INFO LOGGER: "); //INFO LOGGER
-  Serial.println("Inicializado");
 
-  
- }
+#if defined(HC06)  
+  Serial.begin(9600);
+  Serial.println("Inicializado");
+#endif
+}
 
 //******************************************************************************(LOOP)
 void loop() 
 {
   
-#if defined(SERVO)
-    myservo.write(5);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(800);
-    myservo.write(20);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(300);
-    myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(600);
-    myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(2000);
-    myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(600);
-    myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
-    delay(100);
+#if defined(SERVO) && defined(HC06)
+    if(myservoStart == 1)
+    {
+        myservo.write(5);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(500);
+        myservo.write(90);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(300);
+        myservo.write(70);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(600);
+        myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(100);
+        myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(600);
+        myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        delay(100);
+    }
 #endif
     
 #if defined(L298) && defined(IR)
@@ -147,6 +151,26 @@ void loop()
 }
 #endif
 
+#if defined(HC06) 
+  // send data only when you receive data:
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+
+    if (incomingByte == '1')
+    {    
+      Serial.println("Encendido");
+      incomingByte = 0;
+      myservoStart = 1;
+    }
+    if (incomingByte == '0')
+    {    
+      Serial.println("Apagado");
+      incomingByte = 0;
+      myservoStart = 0;
+    }
+  }
+#endif 
 
 }
 
