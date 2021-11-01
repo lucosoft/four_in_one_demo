@@ -4,9 +4,9 @@
 #include "IRremote.h"  
 #include <Servo.h>
 
-//#define L298
+#define L298
 //#define IR
-#define SERVO
+//#define SERVO
 #define HC06
 //***********************Definicion de los pines del motor*************************
 
@@ -151,7 +151,7 @@ void loop()
 }
 #endif
 
-#if defined(HC06) 
+#if defined(HC06) && defined(SERVO)
   // send data only when you receive data:
   if (Serial.available() > 0) {
     // read the incoming byte:
@@ -171,6 +171,61 @@ void loop()
     }
   }
 #endif 
+
+#if defined(L298) && defined(HC06)
+
+  // send data only when you receive data:
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+
+    if (incomingByte == '1')
+    {    
+      incomingByte = 0;
+      Serial.println("advance");
+      MR_marcha(100);
+      ML_marcha(100);
+      ML_avance();
+      MR_avance();
+    }
+    if (incomingByte == '0')
+    {    
+     incomingByte = 0;
+     Serial.println("stop");
+     ML_parada();
+     MR_parada();
+    }
+    if (incomingByte == '2')
+     {
+      Serial.print("back");
+      MR_marcha(100);
+      ML_marcha(100);
+      ML_retroceso();
+      MR_retroceso();
+     }
+
+    if (incomingByte == '4')
+    {
+      Serial.print("right");
+      ML_parada();
+      MR_marcha(70);
+      //ML_marcha(100);
+      //ML_retroceso();
+      MR_retroceso();
+    }
+
+    if (incomingByte == '3')
+     {
+        Serial.print("left");
+        MR_parada();
+        //MR_marcha(100);
+        ML_marcha(70);
+        ML_retroceso();
+        //MR_retroceso();
+     }
+ 
+}
+#endif
 
 }
 
