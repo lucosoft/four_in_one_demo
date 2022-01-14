@@ -14,10 +14,10 @@
 - D5 -> pinI1: Motor Right I1
 - D6 -> pinI2: Motor Right I2
 
-- D8 -> pinI3: Motor Right I1
-- D9 -> pinI4: Motor Right I2
+- D8 -> pinI3: Motor Left I3
+- D9 -> pinI4: Motor Left I4
 
-- D10 -> enb: Motor Right (EB control de velocidad PWM)
+- D10 -> enb: Motor Left (EB control de velocidad PWM)
 
 - D11 -> ena: Motor Right (EA control de velocidad PWM)
 
