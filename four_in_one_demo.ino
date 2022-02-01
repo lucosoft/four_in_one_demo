@@ -75,6 +75,8 @@ void setup()
   Serial.begin(9600);
   Serial.println("Inicializado");
 #endif
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 //******************************************************************************(LOOP)
@@ -181,6 +183,8 @@ void loop()
 
     if (incomingByte == '1')
     {    
+        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+
       incomingByte = 0;
       Serial.println("advance");
       MR_marcha(100);
@@ -190,6 +194,8 @@ void loop()
     }
     if (incomingByte == '0')
     {    
+        digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
+
      incomingByte = 0;
      Serial.println("stop");
      ML_parada();
