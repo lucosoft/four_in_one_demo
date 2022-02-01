@@ -25,4 +25,3 @@
 ![picture](docs/SG_90_pinout.JPG)
 ![picture](docs/BluetoothConnection.png)
 ![picture](docs/MotorConnection.png)
-![picture](docs/BluetoothConnectionToUno.png)
