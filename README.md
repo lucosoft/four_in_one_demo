@@ -11,8 +11,12 @@
 
 - D3 -> servo (ver pinout mas abajo)
 
+- D4 -> HC-05 Bluetooth TXD
+
 - D5 -> pinI1: Motor Right I1
 - D6 -> pinI2: Motor Right I2
+
+- D7 -> HC-05 Bluetooth RXD
 
 - D8 -> pinI3: Motor Left I3
 - D9 -> pinI4: Motor Left I4
