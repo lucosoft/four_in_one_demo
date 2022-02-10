@@ -189,7 +189,7 @@ void loop()
     // read the incoming byte:
     incomingByte = mySerial.read();
 
-    if (incomingByte == '1')
+    if (incomingByte == 'F')
     {    
         digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
 
@@ -200,7 +200,7 @@ void loop()
       ML_avance();
       MR_avance();
     }
-    if (incomingByte == '0')
+    if (incomingByte == 'S')
     {    
         digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
 
@@ -209,7 +209,7 @@ void loop()
      ML_parada();
      MR_parada();
     }
-    if (incomingByte == '2')
+    if (incomingByte == 'B')
      {
       Serial.println("back");
       MR_marcha(100);
@@ -218,7 +218,7 @@ void loop()
       MR_retroceso();
      }
 
-    if (incomingByte == '4')
+    if (incomingByte == 'R')
     {
       Serial.println("right");
       ML_parada();
@@ -228,7 +228,7 @@ void loop()
       MR_retroceso();
     }
 
-    if (incomingByte == '3')
+    if (incomingByte == 'L')
      {
         Serial.println("left");
         MR_parada();
