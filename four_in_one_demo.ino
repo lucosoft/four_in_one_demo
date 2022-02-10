@@ -3,6 +3,7 @@
 //******************************
 #include "IRremote.h"  
 #include <Servo.h>
+#include <SoftwareSerial.h>
 
 #define L298
 //#define IR
@@ -50,6 +51,9 @@ int myservoStart = 0; // flag for start moving
 // hc06
 int incomingByte = 0; // for incoming serial data
 
+// software serial
+SoftwareSerial mySerial(4, 7); // RX, TX
+
 //********************************************************************(SETUP)
 void setup()
 {  
@@ -75,14 +79,18 @@ void setup()
   Serial.begin(9600);
   Serial.println("Inicializado");
 #endif
+
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  
+    // set the data rate for the SoftwareSerial port
+  mySerial.begin(9600);
 }
 
 //******************************************************************************(LOOP)
 void loop() 
 {
-  
+// solo servo con bluetooth  
 #if defined(SERVO) && defined(HC06)
     if(myservoStart == 1)
     {
@@ -99,8 +107,28 @@ void loop()
         myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
         delay(100);
     }
+
+    // send data only when you receive data:
+    if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+
+    if (incomingByte == '1')
+    {    
+      Serial.println("Encendido");
+      incomingByte = 0;
+      myservoStart = 1;
+    }
+    if (incomingByte == '0')
+    {    
+      Serial.println("Apagado");
+      incomingByte = 0;
+      myservoStart = 0;
+    }
+  }
 #endif
-    
+
+// manejo de motores con control remoto ir    
 #if defined(L298) && defined(IR)
 
   if (irrecv.decode(&results)) 
@@ -153,33 +181,13 @@ void loop()
 }
 #endif
 
-#if defined(HC06) && defined(SERVO)
-  // send data only when you receive data:
-  if (Serial.available() > 0) {
-    // read the incoming byte:
-    incomingByte = Serial.read();
-
-    if (incomingByte == '1')
-    {    
-      Serial.println("Encendido");
-      incomingByte = 0;
-      myservoStart = 1;
-    }
-    if (incomingByte == '0')
-    {    
-      Serial.println("Apagado");
-      incomingByte = 0;
-      myservoStart = 0;
-    }
-  }
-#endif 
-
+// manejo de motores con bluetooth
 #if defined(L298) && defined(HC06)
 
   // send data only when you receive data:
-  if (Serial.available() > 0) {
+  if (mySerial.available() > 0) {
     // read the incoming byte:
-    incomingByte = Serial.read();
+    incomingByte = mySerial.read();
 
     if (incomingByte == '1')
     {    
@@ -203,7 +211,7 @@ void loop()
     }
     if (incomingByte == '2')
      {
-      Serial.print("back");
+      Serial.println("back");
       MR_marcha(100);
       ML_marcha(100);
       ML_retroceso();
@@ -212,7 +220,7 @@ void loop()
 
     if (incomingByte == '4')
     {
-      Serial.print("right");
+      Serial.println("right");
       ML_parada();
       MR_marcha(70);
       //ML_marcha(100);
@@ -222,7 +230,7 @@ void loop()
 
     if (incomingByte == '3')
      {
-        Serial.print("left");
+        Serial.println("left");
         MR_parada();
         //MR_marcha(100);
         ML_marcha(70);
