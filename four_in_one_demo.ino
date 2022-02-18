@@ -1,60 +1,60 @@
-//Cuatro en uno (infrarrojo remoto Bluetooth remoto caza evasion de obstaculos) Programa multifuncion
+/* Cuatro en Uno Programa Multifuncion:
+- Infrarrojo Remoto 
+- Bluetooth Remoto 
+- Evasion de Obstaculos
+- Seguidor de Linea 
+*/
 
-//******************************
 #include "IRremote.h"  
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
+
+// Definicion de los Modos de Funcionamiento
 #define L298
 //#define IR
 //#define SERVO
 #define HC06
-//***********************Definicion de los pines del motor*************************
 
+// Definicion de los Pines del Motor
 //MR
-int pinI1=5;//定义I1接口
-int pinI2=6;//定义I2接口
-int ena=11;//定义EA(PWM调速)接口
+int pinI1=8;    // Definicion de la interfaz I1
+int pinI2=9;    // Definicion la interfaz I2
+int ena=10;     // Definicion de interfaz EA (regulación de velocidad PWM)
 //ML
-//int pinI3=0;//定义I3接口
-//int pinI4=1;//定义I4接口
-int pinI3=8;//定义I3接口
-int pinI4=9;//定义I4接口
-int enb=10;//定义EB(PWM调速)接口
+int pinI3=5;    // Definicion de la interfaz I3
+int pinI4=6;    // Definicion de la interfaz I4
+int enb=11;     // Definicion de interfaz EB (regulación de velocidad PWM)
 
-int counter=0;
-const int irReceiverPin = 2; //ç´…å¤–ç·šæŽ¥æ”¶å™¨ OUTPUT è¨Šè™ŸæŽ¥åœ¨ pin 2
-                             //Receptor de infrarrojos conectado al pin 2 seÃ±ales de salida
-  
-char val; 
-//***********************è¨­å®šæ‰€å�µæ¸¬åˆ°çš„IRcode*************************
-//***********************Ajuste el IRcode detectado*************************
-long IRfront= 0xFF629D;        // FF629D
-long IRback= 0xFFA857;             //å¾Œé€€
-long IRturnright=0xFFC23D;    //å�³è½‰
-long IRturnleft= 0xFF22DD;     //å·¦è½‰
-long IRstop=0xFF02FD;         //å�œæ­¢
-long IRcny70=0x00FFA857;        //CNY70è‡ªèµ°æ¨¡å¼�
-long IRAutorun=0x00FF906F;      //è¶…éŸ³æ³¢è‡ªèµ°æ¨¡å¼�
+#if defined(IR)
+// Ajuste el IRcode detectado
+const int irReceiverPin = 2;    //Receptor de infrarrojos conectado al pin 2 seÃ±ales de salida
+// IR codes
+long IRfront= 0xFF629D;         
+long IRback= 0xFFA857;          
+long IRturnright=0xFFC23D;    
+long IRturnleft= 0xFF22DD;    
+long IRstop=0xFF02FD;         
+long IRcny70=0x00FFA857;       
+long IRAutorun=0x00FF906F;     
 long IRturnsmallleft= 0x00FF22DD; 
-//*************************å®šç¾©CNY70è…³ä½�************************************
+IRrecv irrecv(irReceiverPin);       // IRrecv objeto definido para recibir señales infrarrojas 
+decode_results results;       
+#endif
 
-IRrecv irrecv(irReceiverPin);  // å®šç¾© IRrecv ç‰©ä»¶ä¾†æŽ¥æ”¶ç´…å¤–ç·šè¨Šè™Ÿ
-//IRrecv irrecv;  // å®šç¾© IRrecv ç‰©ä»¶ä¾†æŽ¥æ”¶ç´…å¤–ç·šè¨Šè™Ÿ
-                               // IRrecv objeto definido para recibir seÃ±ales infrarrojas 
-decode_results results;       // è§£ç¢¼çµ�æžœå°‡æ”¾åœ¨ decode_results çµ�æ§‹çš„ result è®Šæ•¸è£�
-
-// servo
-Servo myservo;        // 設 myservo
+#if defined(SERVO)
+Servo myservo;        // myservo
 int myservoStart = 0; // flag for start moving
+#endif
 
-// hc06
-int incomingByte = 0; // for incoming serial data
+#if defined(HC06)
+int incomingByte = 0; // Para Datos en Serie Entrantes
+#endif
 
 // software serial
 SoftwareSerial mySerial(4, 7); // RX, TX
 
-//********************************************************************(SETUP)
+// SETUP
 void setup()
 {  
 
@@ -65,14 +65,17 @@ void setup()
   pinMode(pinI3,OUTPUT);
   pinMode(pinI4,OUTPUT);
   pinMode(enb,OUTPUT);
+
+  ML_parada();
+  MR_parada();
 #endif
 
 #if defined(IR)
-  irrecv.enableIRIn();     // å•Ÿå‹•ç´…å¤–ç·šè§£ç¢¼
+  irrecv.enableIRIn();     
 #endif
 
 #if defined(SERVO)
-  myservo.attach(3);    // 定義伺服馬達輸出第5腳位(PWM)
+  myservo.attach(3);    // Definicion de pin 3 de salida del servomotor (PWM)
 #endif
 
 #if defined(HC06)  
@@ -80,37 +83,37 @@ void setup()
   Serial.println("Inicializado");
 #endif
 
-  // initialize digital pin LED_BUILTIN as an output.
+  // Inicializacion del pin digital LED_BUILTIN como salida
   pinMode(LED_BUILTIN, OUTPUT);
   
-    // set the data rate for the SoftwareSerial port
+  // Establecer la tasa de datos para el puerto SoftwareSerial
   mySerial.begin(9600);
 }
 
 //******************************************************************************(LOOP)
 void loop() 
 {
-// solo servo con bluetooth  
+// Modo de funcionamiento con servo por bluetooth remoto  
 #if defined(SERVO) && defined(HC06)
     if(myservoStart == 1)
     {
-        myservo.write(5);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(5);   // Seteo del servomotor a la posición 5 grados 
         delay(500);
-        myservo.write(90);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(90);  // Seteo del servomotor a la posición 90 grados 
         delay(300);
-        myservo.write(70);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(70);  // Seteo del servomotor a la posición 70 grados 
         delay(600);
-        myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(60);  // Seteo del servomotor a la posición 60 grados 
         delay(100);
-        myservo.write(10);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(10);  // Seteo del servomotor a la posición 10 grados 
         delay(600);
-        myservo.write(60);  //讓伺服馬達回歸 預備位置 準備下一次的測量
+        myservo.write(60);  // Seteo del servomotor a la posición 60 grados 
         delay(100);
     }
 
-    // send data only when you receive data:
+    // Enviar datos solo cuando reciba datos:
     if (Serial.available() > 0) {
-    // read the incoming byte:
+    // Leer el byte entrante:
     incomingByte = Serial.read();
 
     if (incomingByte == '1')
@@ -128,12 +131,12 @@ void loop()
   }
 #endif
 
-// manejo de motores con control remoto ir    
+// Modo de funcionamiento con manejo de motores por control remoto ir    
 #if defined(L298) && defined(IR)
 
   if (irrecv.decode(&results)) 
     {
-	  if (results.value == IRfront)//å‰�é€²
+	  if (results.value == IRfront)
        {
         Serial.print("advance");
         MR_marcha(100);
@@ -141,7 +144,7 @@ void loop()
         ML_avance();
         MR_avance();
        }
-    if (results.value ==  IRback)//å¾Œé€€
+    if (results.value ==  IRback)
      {
       Serial.print("back");
       MR_marcha(100);
@@ -150,7 +153,7 @@ void loop()
       MR_retroceso();
      }
 
-    if (results.value == IRturnright)//å�³è½‰
+    if (results.value == IRturnright)
     {
       Serial.print("right");
       ML_parada();
@@ -160,7 +163,7 @@ void loop()
       MR_retroceso();
     }
 
-     if (results.value == IRturnleft)//å·¦è½‰
+     if (results.value == IRturnleft)
      {
         Serial.print("left");
         MR_parada();
@@ -170,7 +173,7 @@ void loop()
         //MR_retroceso();
      }
 
-    if (results.value == IRstop)//å�œæ­¢
+    if (results.value == IRstop)
    {
      Serial.print("stop");
      ML_parada();
@@ -181,111 +184,103 @@ void loop()
 }
 #endif
 
-// manejo de motores con bluetooth
+// Modo de funcionamiento con manejo de motores por bluetooth remoto
 #if defined(L298) && defined(HC06)
 
-  // send data only when you receive data:
+  // Enviar datos solo cuando reciba datos:
   if (mySerial.available() > 0) {
-    // read the incoming byte:
+    // Leer el byte entrante:
     incomingByte = mySerial.read();
 
-    if (incomingByte == 'F')
-    {    
-        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    if (incomingByte == 'F') {    
+      digitalWrite(LED_BUILTIN, HIGH);   // Enciende el LED (HIGH es el nivel alto de voltaje)
 
       incomingByte = 0;
-      Serial.println("advance");
+      Serial.println("Avance");
       MR_marcha(100);
       ML_marcha(100);
       ML_avance();
       MR_avance();
     }
-    if (incomingByte == 'S')
-    {    
-        digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
+
+    if (incomingByte == 'S') {    
+     digitalWrite(LED_BUILTIN, LOW);   // Apaga el LED (LOW es el nivel bajo de voltaje)
 
      incomingByte = 0;
-     Serial.println("stop");
+     Serial.println("Freno");
      ML_parada();
      MR_parada();
     }
-    if (incomingByte == 'B')
-     {
-      Serial.println("back");
+
+    if (incomingByte == 'B') {
+      Serial.println("Atras");
       MR_marcha(100);
       ML_marcha(100);
       ML_retroceso();
       MR_retroceso();
      }
 
-    if (incomingByte == 'R')
-    {
-      Serial.println("right");
-      ML_parada();
+    if (incomingByte == 'R') {
+      Serial.println("Derecha");
       MR_marcha(70);
-      //ML_marcha(100);
-      //ML_retroceso();
-      MR_retroceso();
+      ML_marcha(100);
+      ML_avance();
+      MR_avance();
     }
 
-    if (incomingByte == 'L')
-     {
-        Serial.println("left");
-        MR_parada();
-        //MR_marcha(100);
-        ML_marcha(70);
-        ML_retroceso();
-        //MR_retroceso();
+    if (incomingByte == 'L') {
+      Serial.println("Izquierda");
+      MR_marcha(100);
+      ML_marcha(70);
+      ML_avance();
+      MR_avance();
      }
- 
 }
 #endif
-
 }
 
-void MR_marcha(int sp) 
-{
-//  analogWrite(ena,sp);//输入模拟值进行设定速度
-   digitalWrite(ena,HIGH);//使直流电机（左）刹车
-
+void MR_marcha(int sp) {
+// Introduzca el valor analógico para establecer la velocidad  
+   analogWrite(ena,sp);   
 }
 
-void MR_parada() 
-{
-   digitalWrite(pinI1,HIGH);//使直流电机（左）刹车
+void MR_parada() {
+// Frena el motor DC (derecha)  
+   digitalWrite(pinI1,HIGH);  
    digitalWrite(pinI2,HIGH);
 }
 
-void MR_retroceso()
-{
-  digitalWrite(pinI1,LOW);//使直流电机（左）顺时针转
-  digitalWrite(pinI2,HIGH);
-}
-void MR_avance()
-{
-  digitalWrite(pinI2,LOW);//使直流电机（左）顺时针转
+void MR_retroceso() {
+// Gire el motor de CC (derecha) en sentido contrario a las agujas del reloj    
+  digitalWrite(pinI2,LOW);
   digitalWrite(pinI1,HIGH);
 }
 
-void ML_marcha(int sp)
-{
-//  analogWrite(enb,sp);//输入模拟值进行设定速度
-  digitalWrite(enb,HIGH);
+void MR_avance() {
+// Haga que el motor de CC (derecha) gire en el sentido de las agujas del reloj  
+  digitalWrite(pinI1,LOW);    
+  digitalWrite(pinI2,HIGH);
 }
 
-void ML_parada() 
-{
-   digitalWrite(pinI3,HIGH);//使直流电机（左）刹车
-   digitalWrite(pinI4,HIGH);
+void ML_marcha(int sp) {
+// Introduzca el valor analógico para establecer la velocidad    
+  analogWrite(enb,sp);
 }
-void ML_retroceso()
-{
-   digitalWrite(pinI4,LOW);//使直流电机（右）逆时针转
+
+void ML_parada() {
+// Frena el motor DC (izquierda)   
    digitalWrite(pinI3,HIGH);
+   digitalWrite(pinI4,HIGH);
 }
 
-void ML_avance()
-{
-   digitalWrite(pinI3,LOW);//使直流电机（右）逆时针转
+void ML_retroceso() {
+// Gire el motor de CC (izquierda) en sentido contrario a las agujas del reloj  
+   digitalWrite(pinI3,LOW);
    digitalWrite(pinI4,HIGH);
+}
+
+void ML_avance() {
+// Haga que el motor de CC (izquierda) gire en el sentido de las agujas del reloj   
+   digitalWrite(pinI4,LOW);
+   digitalWrite(pinI3,HIGH);
 }
