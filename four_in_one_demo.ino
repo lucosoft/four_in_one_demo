@@ -52,7 +52,9 @@ int incomingByte = 0; // Para Datos en Serie Entrantes
 #endif
 
 // software serial
-SoftwareSerial mySerial(4, 7); // RX, TX
+const int softwareSerialRx = 4;    // Rx pinout
+const int softwareSerialTx = 7;    // Tx pinout
+SoftwareSerial mySerial(softwareSerialRx, softwareSerialTx); // RX, TX
 
 // SETUP
 void setup()
