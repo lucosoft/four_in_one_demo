@@ -15,7 +15,9 @@
 //#define IR
 //#define SERVO
 #define HC06
+#define TRACKING_CAR
 
+#if defined(L298)
 // Definicion de los Pines del Motor
 //MR
 int pinI1=8;    // Definicion de la interfaz I1
@@ -25,6 +27,7 @@ int ena=10;     // Definicion de interfaz EA (regulación de velocidad PWM)
 int pinI3=5;    // Definicion de la interfaz I3
 int pinI4=6;    // Definicion de la interfaz I4
 int enb=11;     // Definicion de interfaz EB (regulación de velocidad PWM)
+#endif
 
 #if defined(IR)
 // Ajuste el IRcode detectado
@@ -49,6 +52,16 @@ int myservoStart = 0; // flag for start moving
 
 #if defined(HC06)
 int incomingByte = 0; // Para Datos en Serie Entrantes
+#endif
+
+#if defined(TRACKING_CAR)
+const int SensorLeft = A3;      // Pin de entrada del sensor izquierdo
+const int SensorMiddle= A4 ;    // Pin de entrada del sensor medio
+const int SensorRight = A5;     // Pin de entrada del sensor derecho
+int SL;    // estado del sensor izquierdo
+int SM;    // estado del sensor medio
+int SR;    // estado del sensor derecho
+int trackingCarModeOn = LOW;
 #endif
 
 // software serial
@@ -88,6 +101,12 @@ void setup()
   
   // Establecer la tasa de datos para el puerto SoftwareSerial
   mySerial.begin(9600);
+
+#if defined(TRACKING_CAR)
+  pinMode(SensorLeft, INPUT); // Definicion modo sensor izquierdo
+  pinMode(SensorMiddle, INPUT);// Definicion modo sensor medio
+  pinMode(SensorRight, INPUT); // Definicion modo sensor derecho
+#endif
 }
 
 //******************************************************************************(LOOP)
@@ -184,9 +203,8 @@ void loop()
 }
 #endif
 
-// Modo de funcionamiento con manejo de motores por bluetooth remoto
-#if defined(L298) && defined(HC06)
-
+  // Modo de funcionamiento con manejo de motores por bluetooth remoto
+  #if defined(L298) && defined(HC06)
   // Enviar datos solo cuando reciba datos:
   if (mySerial.available() > 0) {
     // Leer el byte entrante:
@@ -207,7 +225,8 @@ void loop()
      digitalWrite(LED_BUILTIN, LOW);   // Apaga el LED (LOW es el nivel bajo de voltaje)
 
      incomingByte = 0;
-     Serial.println("Freno");
+// comentado para evitar spam     
+//     Serial.println("Freno"); 
      ML_parada();
      MR_parada();
     }
@@ -235,8 +254,77 @@ void loop()
       ML_avance();
       MR_avance();
      }
-}
-#endif
+
+    if (incomingByte == 'X') {
+      Serial.println("TrackingCarModeOn");
+      trackingCarModeOn = HIGH;
+    }
+
+    if (incomingByte == 'x') {
+      Serial.println("TrackingCarModeOff");
+      trackingCarModeOn = LOW;
+    }
+  }
+  #endif
+
+    // Modo de funcionamiento con seguidor de linea
+  #if defined(TRACKING_CAR)
+  if (trackingCarModeOn) {
+    SL = digitalRead(SensorLeft);
+    SM = digitalRead(SensorMiddle);
+    SR = digitalRead(SensorRight);
+
+    if (SM == HIGH)	// El sensor central está en el área negra.
+    {
+      if (SL == LOW & SR == HIGH) // Izquierda negra derecha blanca, girar a la izquierda
+      {
+        Serial.println("Izquierda");
+        MR_marcha(100);
+        ML_marcha(70);
+        ML_avance();
+        MR_avance();
+      } else if (SR == LOW & SL == HIGH) // Izquierda blanca derecha negra, girar a la derecha
+      {
+        Serial.println("Derecha");
+        MR_marcha(70);
+        ML_marcha(100);
+        ML_avance();
+        MR_avance();
+      } else  // Blanco en ambos lados, directo
+      {
+        Serial.println("Avance");
+        MR_marcha(100);
+        ML_marcha(100);
+        ML_avance();
+        MR_avance();
+      }
+    } else // El sensor central está en el área blanca.
+    {
+      if (SL == HIGH & SR == LOW) // Izquierda negra derecha blanca, giro rápido a la izquierda
+      {
+        Serial.println("Izquierda Rapida");
+        MR_marcha(100);
+        ML_marcha(50);
+        ML_avance();
+        MR_avance();
+      } else if (SR == HIGH & SL == LOW) // Izquierda blanca y derecha negra, giro rápido a la derecha
+      {
+        Serial.println("Derecha Rapida");
+        MR_marcha(70);
+        ML_marcha(100);
+        ML_avance();
+        MR_avance();
+      } else // todo blanco, para
+      {
+// comentado para evitar spam     
+//     Serial.println("Freno"); 
+        ML_parada();
+        MR_parada();
+      }
+    }
+  }
+  #endif
+
 }
 
 void MR_marcha(int sp) {
